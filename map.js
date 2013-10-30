@@ -31,7 +31,7 @@
 
 				map.setCenter(marker.getPosition());
 				
-				info.setContent('<p>' + option.dataset.fullname + '</p>');
+				info.setContent('<div><div><p>' + option.dataset.fullname + '</p></div></div>');
 				info.open(map, marker);
 			}, false);
 
