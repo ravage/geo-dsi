@@ -19,8 +19,10 @@
 			
 			gmaps.event.addListener(map, 'click', function(event) {
 				reverseGeocode(event.latLng, function(results) {
+					var marker;
 					if (results.length > 0) {
-						createLink(addMarker(event.latLng), results[0].formatted_address);
+						marker = addMarker(event.latLng, { title: results[0].formatted_address });
+						createLink(marker, results[0].formatted_address);
 					}	
 				});
 			});
@@ -45,7 +47,7 @@
 				var location = new gmaps.LatLng(position.coords.latitude, position.coords.longitude);
 
 				if (marker == null) {
-					marker = addMarker(location, 'gfx/person.png');	
+					marker = addMarker(location, { icon: 'gfx/person.png' });	
 				}
 				
 				marker.setPosition(location);
@@ -69,17 +71,15 @@
 		}, false);
 	}
 
-	function addMarker(latLng, icon) {
-		var markerOptions = {
+	function addMarker(latLng, opts) {
+		var options = merge({ icon: 'gfx/drop.png', title: '' }, opts),
+			markerOptions = {
 				map: map,
-				position: latLng
+				position: latLng,
+				icon: options.icon,
+				title: options.title
 			};
-
-		if (icon === undefined) {
-			icon = 'gfx/drop.png';
-		}
-
-		markerOptions.icon = icon;
+		
 		marker = new gmaps.Marker(markerOptions);
 		marker.index = markers.length;
 		markers.push(marker);
@@ -114,7 +114,6 @@
 			var location; 
 			if (status === gmaps.GeocoderStatus.OK) {
 				location = results[0].geometry.location;
-				addMarker(location);
 				map.setCenter(location);
 			} else {
 				alert('Não Encontrado!');
@@ -135,6 +134,14 @@
 				}
 			}
 		});
+	}
+
+	function merge(defaults, incoming) {
+		for (var option in incoming) {
+			defaults[option] = incoming[option];
+		}
+
+		return defaults;
 	}
 
 	window.addEventListener('DOMContentLoaded', initialize, false);
