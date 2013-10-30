@@ -1,6 +1,9 @@
+/* global google:false */
+
 // função auto-executável, evita poluição do âmbito global.
 // FIXME: refactor para componentes reutilizáveis
 (function() {
+    'use strict';
 	// google.maps.Map
 	var map,
 	// lista de marcadores
@@ -10,9 +13,9 @@
 	// InfoWindow a ser utilizada nos marcadores
 	info,
 	// abreviar document.querySelectorAll para $
-	$ = function(selector) { 
+	$ = function(selector) {
 			return document.querySelectorAll(selector);
-		}
+		};
 	
 	// função executada após carregamento HTML
 	function initialize() {
@@ -38,7 +41,7 @@
 						marker = addMarker(event.latLng, { title: results[0].formatted_address });
 						// adicionar o marcador ao elemento HTML (#links)
 						createLink(marker, results[0].formatted_address);
-					}	
+					}
 				});
 			});
 			
@@ -71,9 +74,9 @@
 				var location = new gmaps.LatLng(position.coords.latitude, position.coords.longitude);
 
 				// caso o marcador ainda não se tenha materializado
-				if (marker == null) {
+				if (marker === null) {
 					// cria-se um novo
-					marker = addMarker(location, { icon: 'gfx/person.png' });	
+					marker = addMarker(location, { icon: 'gfx/person.png' });
 				}
 				
 				// após criação do marcador basta alterar a sua posição
@@ -144,7 +147,7 @@
 		// limita-se o nome a 32 carateres para que não expanda o elemento
 		// de forma exagerada
 		if (name.length > 32) {
-			name = name.substring(0, 32) + '...';	
+			name = name.substring(0, 32) + '...';
 		}
 
 		// o elemento apresenta o nome do marcador
@@ -170,7 +173,7 @@
 		
 		// executar a geocodificação
 		geocoder.geocode(geocoderOptions, function(results, status) {
-			var location; 
+			var location;
 			// caso a geocodificação seja bem sucedida
 			if (status === gmaps.GeocoderStatus.OK) {
 				// obter as coordenadas
@@ -198,7 +201,7 @@
 		// executar a geocodificação inversa
 		geocoder.geocode(geocoderOptions, function(results, status) {
 			// caso o processo conclua com sucesso
-			if (status = gmaps.GeocoderStatus.OK) {
+			if (status === gmaps.GeocoderStatus.OK) {
 				// verificar se foi efetivamente passado um callback
 				if (callback !== undefined) {
 					// executar o callback passando os resultados obtidos na geocodificação
@@ -214,7 +217,9 @@
 		// iterar por todas a propriedades recebidas
 		for (var option in incoming) {
 			// substituir as omissas pelas recebidas
-			defaults[option] = incoming[option];
+            if (incoming.hasOwnProperty(option)) {
+              defaults[option] = incoming[option];
+            }
 		}
 
 		return defaults;
