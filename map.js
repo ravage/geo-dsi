@@ -1,6 +1,7 @@
 var map,
 	markers = [],
 	gmaps = google.maps,
+	info,
 	$ = function(selector) { 
 			return document.querySelectorAll(selector);
 		}
@@ -10,7 +11,8 @@ function initialize() {
 			zoom: 16,
 			mapTypeId: gmaps.MapTypeId.ROADMAP
 		},
-		element = document.getElementById("map-canvas");
+		element = document.getElementById("map-canvas"),
+		info = new gmaps.InfoWindow();
 		
 		map = new gmaps.Map(element, mapOptions);
 		
@@ -23,7 +25,13 @@ function initialize() {
 		});
 		
 		$('#links').item(0).addEventListener('change', function(e) {
-			map.setCenter(markers[e.target.value].getPosition());
+			var marker = markers[e.target.value],
+				option = e.target.children[e.target.selectedIndex];
+
+			map.setCenter(marker.getPosition());
+			
+			info.setContent('<p>' + option.dataset.fullname + '</p>');
+			info.open(map, marker);
 		}, false);
 
 		handleGeocodingForm();
@@ -82,6 +90,7 @@ function createLink(marker, name) {
 		links = $('#links').item(0);
 	
 	name = name || 'N/A';
+	option.dataset.fullname = name;
 
 	if (name.length > 32) {
 		name = name.substring(0, 32) + '...';	
@@ -89,6 +98,7 @@ function createLink(marker, name) {
 
 	option.textContent = name;
 	option.value = marker.index;
+
 	
 	links.appendChild(option);
 }
