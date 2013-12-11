@@ -25,42 +25,44 @@
 				mapTypeId: gmaps.MapTypeId.ROADMAP
 			},
 			// obter o elemento com o identificador 'map-canvas'
-			element = $('#map-canvas').item(0),
+			element = $('#map-canvas').item(0);
+
 			// inicialização da InfoWindow
-			info = new gmaps.InfoWindow();
-			// inicialização do mapa no elemento 'map-canvas'
-			map = new gmaps.Map(element, mapOptions);
-			// ligar ao evento click do mapa
-			gmaps.event.addListener(map, 'click', function(event) {
-				// ao receber um click, realizar geocodificação-inversa para obter uma morada
-				reverseGeocode(event.latLng, function(results) {
-					var marker;
-					// caso sejam devolvidos resultados com moradas possíveis
-					if (results.length > 0) {
-						// criar marcador com posição e título obtido pela geocodificação
-						marker = addMarker(event.latLng, { title: results[0].formatted_address });
-						// adicionar o marcador ao elemento HTML (#links)
-						createLink(marker, results[0].formatted_address);
-					}
-				});
+		info = new gmaps.InfoWindow();
+		// inicialização do mapa no elemento 'map-canvas'
+		map = new gmaps.Map(element, mapOptions);
+		// ligar ao evento click do mapa
+		gmaps.event.addListener(map, 'click', function(event) {
+			// ao receber um click, realizar geocodificação-inversa para obter uma morada
+			reverseGeocode(event.latLng, function(results) {
+				var marker;
+				// caso sejam devolvidos resultados com moradas possíveis
+				if (results.length > 0) {
+					// criar marcador com posição e título obtido pela geocodificação
+					marker = addMarker(event.latLng, { title: results[0].formatted_address });
+					// adicionar o marcador ao elemento HTML (#links)
+					createLink(marker, results[0].formatted_address);
+				}
 			});
-			
-			// ligar ao evento change do elemento '#links'
-			$('#links').item(0).addEventListener('change', function(e) {
-				// após o evento disparar, obter o respetivo marcador
-				var marker = markers[e.target.value];
+		});
+		
+		// ligar ao evento change do elemento '#links'
+		$('#links').item(0).addEventListener('change', function(e) {
+			// após o evento disparar, obter o respetivo marcador
+			var marker = markers[e.target.value];
 
-				// centrar o mapa no marcador/posição selecionada
-				map.setCenter(marker.getPosition());
-				// preencher e apresentar a InfoWindow com a morada completa
-				info.setContent('<div><div><p>' + marker.getTitle() + '</p></div></div>');
-				info.open(map, marker);
-			}, false);
+			// centrar o mapa no marcador/posição selecionada
+			map.setCenter(marker.getPosition());
+			// preencher e apresentar a InfoWindow com a morada completa
+			info.setContent('<div><div><p>' + marker.getTitle() + '</p></div></div>');
+			info.open(map, marker);
+		}, false);
 
-			// inicializar o formulário para geocodificação
-			handleGeocodingForm();
-			// inicializar geolocalização (navigator.geolocation)
-			handleGeolocation();
+		// inicializar o formulário para geocodificação
+		handleGeocodingForm();
+		handleCategoriesForm();
+		// inicializar geolocalização (navigator.geolocation)
+		handleGeolocation();
 	}
 
 	// função para inicialização do navigator.geolocation
@@ -105,6 +107,27 @@
 			geocode(e.target.address.value);
 			// impedir que o processo de submit do form se realize
 			e.preventDefault();
+		}, false);
+	}
+	
+	function handleCategoriesForm() {
+		var form = $('[name=categories]').item(0);
+		
+		form.addEventListener('submit', function(e) {
+			var f = e.target;
+			e.preventDefault();
+			
+			superagent
+				.post('/20132014/DSI/DSI11154/geo/db.php')
+				.send({
+					category: f.category.value,
+					entity: 'categories'
+				})
+				.type('form')
+				.end(function(result) {
+					console.log(result.text);
+				});
+			
 		}, false);
 	}
 
